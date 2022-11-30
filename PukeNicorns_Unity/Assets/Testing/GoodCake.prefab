@@ -129,7 +129,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isCakeSpoiled: 0
   isGround: 0
-  TimeToSpoil: 5
-  TimeToDestroy: 5
-  TimerCake: 0
+  TimeToSpoil: 6
+  TimeToDestroy: 4
+  TimeToEatCake: 1
+  PointsToAdd: 1
+  PointsToSubstrac: -2
   materialGood: {fileID: 2100000, guid: 6af20d21fdb3e9846be9fcc5368045e6, type: 2}
