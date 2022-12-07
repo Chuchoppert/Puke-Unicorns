@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CakeObject : MonoBehaviour
 {
@@ -17,10 +18,13 @@ public class CakeObject : MonoBehaviour
     [Space]
     [SerializeField] int PointsToAdd;
     [SerializeField] int PointsToSubstrac;
-    [Space]
-    [Header("Testing")]
-    [SerializeField] Material materialGood;
 
+    [Space, Header("Icons")]
+    [SerializeField] RawImage CakeFL_RawImage;
+    [SerializeField] RawImage CakeG_RawImage;
+    [SerializeField] RawImage CakeS_RawImage;
+    public GameObject UICanvas_Cake;
+ 
     //Solo para cambiar el estado del pastel
     private void OnCollisionEnter(Collision collision)
     {
@@ -33,9 +37,10 @@ public class CakeObject : MonoBehaviour
 
             //Cambiar la forma de colision
             this.GetComponent<BoxCollider>().isTrigger = true;
-            this.GetComponent<BoxCollider>().size = new Vector3(1.5f, 2.0f, 1.5f);
+            this.GetComponent<BoxCollider>().size = new Vector3(2.0f, 2.0f, 2.0f);
 
             //Aqui cambiar de sprite "cayendo" a "desparramao", al igual que agregar sonido splash
+            ChangeIcon(0); //Ground
 
             //Una vez caido, activara el proceso GetSpoiledEffectOrDestroy()
             this.isGround = true;
@@ -133,9 +138,9 @@ public class CakeObject : MonoBehaviour
 
                     //Reiniciar timer
                     this.TimerCake = 0.0f;
-                    
+
                     //Test, cambiar por sprite malo
-                    this.GetComponent<MeshRenderer>().material = materialGood;
+                    ChangeIcon(1); //Spoiled
                 }
             }
             //Pero si el pastel esta malo
@@ -215,6 +220,46 @@ public class CakeObject : MonoBehaviour
 
             //Reiniciar slider
             other.GetComponent<MovPlayer>().Slider_Eat.value = 0;
+        }
+    }
+
+    //Metodo para cambiar icono cuando se lanza
+    public void IconCakeLaunched(Vector3 DirToLaunch, float ForceToLauch)
+    {
+        //Desparentar el objeto
+        this.gameObject.transform.parent = null;
+
+        //Activar fisicas de unity, empujar hacia la direccion reciente
+        this.gameObject.GetComponent<Rigidbody>().isKinematic = false;
+        this.gameObject.GetComponent<Rigidbody>().AddForce(DirToLaunch * ForceToLauch, ForceMode.Impulse);
+
+        //Regresar el collider a la normalidad y activar colisiones
+        this.gameObject.GetComponent<BoxCollider>().size = Vector3.one;
+        this.gameObject.GetComponent<BoxCollider>().enabled = true;
+
+        //Cambiar textura
+        ChangeIcon(2); //Falling
+    }
+
+    void ChangeIcon(int status) //0 = ground | 1 = Spoiled | 2 = Launch
+    {
+        if(status == 0)
+        {
+            CakeG_RawImage.gameObject.SetActive(true);
+            CakeS_RawImage.gameObject.SetActive(false);
+            CakeFL_RawImage.gameObject.SetActive(false);
+        }
+        else if(status == 1)
+        {
+            CakeG_RawImage.gameObject.SetActive(false);
+            CakeS_RawImage.gameObject.SetActive(true);
+            CakeFL_RawImage.gameObject.SetActive(false);
+        }
+        else if (status == 2)
+        {
+            CakeG_RawImage.gameObject.SetActive(false);
+            CakeS_RawImage.gameObject.SetActive(false);
+            CakeFL_RawImage.gameObject.SetActive(true);
         }
     }
 }

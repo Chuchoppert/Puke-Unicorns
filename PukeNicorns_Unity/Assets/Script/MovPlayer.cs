@@ -137,16 +137,11 @@ public class MovPlayer : MonoBehaviour
             //solo si el player vuelve a tomar la tecla y esta listo para larzar
             if (Input.GetKey(GrabAndLaunch_Action) && ReadyToLaunch)
             {
-                //Desparentar el objeto
-                cakeTaked_GO.transform.parent = null;
+                //Preparar pastel para lanzar
+                cakeTaked_GO.GetComponent<CakeObject>().IconCakeLaunched(DirToLaunch ,ForceToLauch);
 
-                //Activar fisicas de unity, empujar hacia la direccion reciente
-                cakeTaked_GO.GetComponent<Rigidbody>().isKinematic = false;
-                cakeTaked_GO.GetComponent<Rigidbody>().AddForce(DirToLaunch * ForceToLauch, ForceMode.Impulse);
-
-                //Regresar el collider a la normalidad y activar colisiones
-                cakeTaked_GO.GetComponent<BoxCollider>().size = Vector3.one;
-                cakeTaked_GO.GetComponent<BoxCollider>().enabled = true;
+                //Girar pastel  
+                cakeTaked_GO.GetComponent<CakeObject>().UICanvas_Cake.transform.rotation = Quaternion.Euler(0.0f, RotationY, 0.0f);
 
                 //Ocultar direccion de lanzamiento
                 UI_Direction.SetActive(false);
