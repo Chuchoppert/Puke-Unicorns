@@ -3,19 +3,21 @@ using UnityEngine.UI;
 
 public class CakeObject : MonoBehaviour
 {
+    [Space, Header("Status Cake")]
     [SerializeField] bool isCakeSpoiled = false;
     [SerializeField] bool isGround = false;
-    [Space]
+
+    [Space, Header("Times")]
     [SerializeField] float TimeToSpoil = 5;
     [SerializeField] float TimeToDestroy = 5;
     [SerializeField] float TimeToEatCake = 5;
-    private float TimerCake;
 
+    private float TimerCake;
     private float TimerGrabCake;
     private bool isCakeTaked = false;
     private Collider playerCollider;
 
-    [Space]
+    [Space, Header("Points")]
     [SerializeField] int PointsToAdd;
     [SerializeField] int PointsToSubstrac;
 
@@ -55,17 +57,21 @@ public class CakeObject : MonoBehaviour
         {
             /////Solo casos en que el pastel no haya sido tomado.
             //Si el player toca la tecla de accion de tomar y lanzar entonces activara el proceso GrabOrEatCake()
-            if (Input.GetKeyDown(other.GetComponent<MovPlayer>().GrabAndLaunch_Action) && isCakeTaked == false)
+            if (Input.GetKeyDown(other.GetComponent<GrabLaunchCake>().GrabAndLaunch_Action) && isCakeTaked == false)
             {
                 //Muestra el tiempo que tienes y que falta para tomar o comer el pastel
-                other.GetComponent<MovPlayer>().Slider_Eat.maxValue = TimeToEatCake;
+                other.GetComponent<CakeEffectsPlayer>().Slider_Eat.maxValue = TimeToEatCake;
+
+                other.GetComponent<TextureUnicornStatus>().CheckTexturesUnicorn(Complex.Same, StatusUnicorn.Eat);
 
                 //Guardar collider del player para los procesos de GrabOrEatCake()
                 playerCollider = other;
             }
             //Si el player levanta la tecla, se interrumpira el proceso
-            else if(Input.GetKeyUp(other.GetComponent<MovPlayer>().GrabAndLaunch_Action) && isCakeTaked == false)
+            else if(Input.GetKeyUp(other.GetComponent<GrabLaunchCake>().GrabAndLaunch_Action) && isCakeTaked == false)
             {
+                other.GetComponent<TextureUnicornStatus>().CheckTexturesUnicorn(Complex.Same, StatusUnicorn.Idle);
+
                 //Quitar activador del proceso GrabOrEatCake() y reiniciar timer
                 playerCollider = null;
                 TimerGrabCake = 0.0f;
@@ -79,12 +85,10 @@ public class CakeObject : MonoBehaviour
                 //Si el nombre del pastel es el mismo del personaje que lo lanzo, no afectar.
                 if(other.name != name)
                 {
-                    //Afectar solo si el player no esta envenenado
-                    if(other.GetComponent<MovPlayer>().CakesEatsWithoutDigest != -1)
-                    {
-                        //Si es distinto entonces hacer el proceso EffectCake del script del player y restar puntos.
-                        other.GetComponent<MovPlayer>().EffectCake(isCakeSpoiled, 0, PointsToSubstrac);
-                    }
+                    other.GetComponent<MovPlayer>().PlayerCanMove(false);
+
+                    //Hacer el proceso EffectCake del script del player y restar puntos.
+                    other.GetComponent<CakeEffectsPlayer>().EffectCake(isCakeSpoiled, 0, PointsToSubstrac);
 
                     //Despues de afectar, destruir
                     Destroy(this.gameObject);
@@ -99,6 +103,8 @@ public class CakeObject : MonoBehaviour
     {
         if (other.CompareTag("Player") && this.isGround)
         {
+            other.GetComponent<TextureUnicornStatus>().CheckTexturesUnicorn(Complex.Same, StatusUnicorn.Idle);
+
             //Quitar activador del proceso GrabOrEatCake() y reiniciar timer
             TimerGrabCake = 0.0f;
             playerCollider = null;
@@ -168,7 +174,7 @@ public class CakeObject : MonoBehaviour
         if (isCakeTaked == false)
         {
             this.TimerGrabCake += Time.deltaTime;
-            other.GetComponent<MovPlayer>().Slider_Eat.value = this.TimerGrabCake;
+            other.GetComponent<CakeEffectsPlayer>().Slider_Eat.value = this.TimerGrabCake;
 
             //Si hay sonido de player intentando tomar pastel, agregar aqui.
         }
@@ -177,17 +183,16 @@ public class CakeObject : MonoBehaviour
         if (this.TimerGrabCake >= TimeToEatCake)
         {
             //Tomar pastel solo si el player no tiene otro pastel y si el pastel es malo
-            if (isCakeSpoiled && other.GetComponent<MovPlayer>().havePlayerCake == false)
+            if (isCakeSpoiled && other.GetComponent<GrabLaunchCake>().havePlayerCake == false)
             {
                 Debug.Log("Cake was taked");
 
                 //Sonido de pastel tomado
 
+                other.GetComponent<TextureUnicornStatus>().CheckTexturesUnicorn(Complex.Same, StatusUnicorn.Idle);
 
                 //Preparar el script del player para el lanzamiento
-                other.GetComponent<MovPlayer>().havePlayerCake = true;
-                other.GetComponent<MovPlayer>().cakeTaked_GO = this.gameObject;
-                other.GetComponent<MovPlayer>().UI_Direction.SetActive(true);
+                other.GetComponent<GrabLaunchCake>().PrepareLaunch(true, this.gameObject);
 
                 //Cambiar nombre a este pastel para evitar que afecte al personaje lanzador
                 name = other.name;
@@ -208,8 +213,10 @@ public class CakeObject : MonoBehaviour
 
                 //Sonido pastel comido
 
+                other.GetComponent<TextureUnicornStatus>().CheckTexturesUnicorn(Complex.Same, StatusUnicorn.Idle);
+
                 //Hacer proceso EffectCake, sumando puntos
-                other.GetComponent<MovPlayer>().EffectCake(isCakeSpoiled, PointsToAdd);
+                other.GetComponent<CakeEffectsPlayer>().EffectCake(isCakeSpoiled, PointsToAdd);
 
                 //Reiniciar, por si acaso se repite
                 this.TimerGrabCake = 0.0f;
@@ -219,7 +226,7 @@ public class CakeObject : MonoBehaviour
             }
 
             //Reiniciar slider
-            other.GetComponent<MovPlayer>().Slider_Eat.value = 0;
+            other.GetComponent<CakeEffectsPlayer>().Slider_Eat.value = 0;
         }
     }
 
