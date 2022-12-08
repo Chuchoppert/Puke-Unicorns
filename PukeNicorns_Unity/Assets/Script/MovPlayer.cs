@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,7 +15,14 @@ public class MovPlayer : MonoBehaviour
 
     [Space, Header("Dash vars")]
     [SerializeField] KeyCode Dash_Action;
-
+    [SerializeField] float TimeEffectDash;
+    float TimerDash;
+    [Space]
+    [SerializeField] Vector3 LookDir;
+    public RawImage IconDash_RawImage;
+    public bool DashReady = true;
+    bool DashInUse = false;
+    float VelocityDash = 1.0f;
 
     [Space, Header("Vars for invert movement")]
     [Range(-1, 1), SerializeField] float InvertMovementX = 1;
@@ -49,6 +55,32 @@ public class MovPlayer : MonoBehaviour
 
         //Girar player 
         this.Canvas_UI.transform.rotation = Quaternion.Euler(0.0f, RotationY, 0.0f);
+
+        if(DashReady && Input.GetKeyDown(Dash_Action))
+        {
+            DashReady = false;
+            DashInUse = true;
+        }
+
+        if (DashInUse == true)
+        {
+            this.TimerDash += Time.deltaTime;
+
+            Debug.Log("Dash Using");
+            IconDash_RawImage.color = Color.yellow;
+            VelocityDash = 2.0f;
+
+            if (this.TimerDash >= TimeEffectDash)
+            {
+                Debug.Log("Dash over");
+                VelocityDash = 1.0f;
+                IconDash_RawImage.color = Color.red;
+                DashInUse = false;
+
+                //Reiniciar timer
+                this.TimerDash = 0.0f;
+            }
+        }
     }
     void FixedUpdate()
     {
@@ -59,8 +91,8 @@ public class MovPlayer : MonoBehaviour
                                                                       //movedirection = transform.TransformDirection(movedirection);
 
             //rb.MovePosition(transform.position + movedirection * ((SpeedMovement * Time.deltaTime) * ComplexionBodySpeed));
-            ControllerPlayer.Move(movedirection * ((SpeedMovement * Time.deltaTime) * ComplexionBodySpeed));
-        }      
+            ControllerPlayer.Move(movedirection * (((SpeedMovement * Time.deltaTime) * ComplexionBodySpeed)) * VelocityDash);
+        }
     }
 
     //Metodo para checar direction
@@ -79,12 +111,16 @@ public class MovPlayer : MonoBehaviour
             if (InputX == 0 && Mathf.Sign(InputY) == 1) //arriba
             {
                 RotationY = 180.0f;
-                GetComponent<GrabLaunchCake>().GiveDirToLaunch(new Vector3(0.0f, 0.0f, 1.0f));
+                LookDir = new Vector3(0.0f, 0.0f, 1.0f);
+
+                GetComponent<GrabLaunchCake>().GiveDirToLaunch(LookDir);
             } 
             else if (InputX == 0 && Mathf.Sign(InputY) == -1) //abajo
             {
                 RotationY = 0.0f;
-                GetComponent<GrabLaunchCake>().GiveDirToLaunch(new Vector3(0.0f, 0.0f, -1.0f));
+                LookDir = new Vector3(0.0f, 0.0f, -1.0f);
+
+                GetComponent<GrabLaunchCake>().GiveDirToLaunch(LookDir);
             }         
         }
         else if (Mathf.Sign(InputX) != 0 && InputY == 0)//Casos para movimiento solo horizontal
@@ -92,12 +128,16 @@ public class MovPlayer : MonoBehaviour
             if (Mathf.Sign(InputX) == 1 && InputY == 0) //izquierda
             {
                 RotationY = 0.0f;
-                GetComponent<GrabLaunchCake>().GiveDirToLaunch(new Vector3(1.0f, 0.0f, 0.0f));
+                LookDir = new Vector3(1.0f, 0.0f, 0.0f);
+
+                GetComponent<GrabLaunchCake>().GiveDirToLaunch(LookDir);
             }
             else if (Mathf.Sign(InputX) == -1 && InputY == 0) //derecha
             {
                 RotationY = 180.0f;
-                GetComponent<GrabLaunchCake>().GiveDirToLaunch(new Vector3(-1.0f, 0.0f, 0.0f));
+                LookDir = new Vector3(-1.0f, 0.0f, 0.0f);
+
+                GetComponent<GrabLaunchCake>().GiveDirToLaunch(LookDir);
             }
         }
         else                                            //Casos para diagonales
@@ -105,23 +145,31 @@ public class MovPlayer : MonoBehaviour
             if (Mathf.Sign(InputX) == 1 && Mathf.Sign(InputY) == 1) //arriba-derecha
             {
                 RotationY = -45.0f;
-                GetComponent<GrabLaunchCake>().GiveDirToLaunch(new Vector3(1.0f, 0.0f, 1.0f));
+                LookDir = new Vector3(1.0f, 0.0f, 1.0f);
+
+                GetComponent<GrabLaunchCake>().GiveDirToLaunch(LookDir);
             }
             else if (Mathf.Sign(InputX) == -1 && Mathf.Sign(InputY) == 1) //arriba-izquierda
             {
                 RotationY = -135.0f;
-                GetComponent<GrabLaunchCake>().GiveDirToLaunch(new Vector3(-1.0f, 0.0f, 1.0f));
+                LookDir = new Vector3(-1.0f, 0.0f, 1.0f);
+
+                GetComponent<GrabLaunchCake>().GiveDirToLaunch(LookDir);
             }
 
             else if (Mathf.Sign(InputX) == 1 && Mathf.Sign(InputY) == -1) //abajo-derecha
             {
                 RotationY = 45.0f;
-                GetComponent<GrabLaunchCake>().GiveDirToLaunch(new Vector3(1.0f, 0.0f, -1.0f));
+                LookDir = new Vector3(1.0f, 0.0f, -1.0f);
+
+                GetComponent<GrabLaunchCake>().GiveDirToLaunch(LookDir);
             }
             else if (Mathf.Sign(InputX) == -1 && Mathf.Sign(InputY) == -1) //abajo-izquierda
             {
                 RotationY = 135.0f;
-                GetComponent<GrabLaunchCake>().GiveDirToLaunch(new Vector3(-1.0f, 0.0f, -1.0f));
+                LookDir = new Vector3(-1.0f, 0.0f, -1.0f);
+
+                GetComponent<GrabLaunchCake>().GiveDirToLaunch(LookDir);
             }
         }
             

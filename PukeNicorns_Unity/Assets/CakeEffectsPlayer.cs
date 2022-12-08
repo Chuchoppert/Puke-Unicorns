@@ -122,6 +122,10 @@ public class CakeEffectsPlayer : MonoBehaviour
         //Si el pastel era bueno, actualizar pesos y puntuacion
         if (CakeWasBad == false)
         {
+            Debug.Log(this.gameObject.name + ": Eat good cake");
+            GetComponent<MovPlayer>().DashReady = true;
+            GetComponent<MovPlayer>().IconDash_RawImage.color = Color.blue;
+
             //Resetear timer y sumar a los pasteles sin digerir
             timerPassed_Digest = 0.0f;
 
@@ -130,8 +134,6 @@ public class CakeEffectsPlayer : MonoBehaviour
             {
                 CakesEatsWithoutDigest += 1;
             }
-
-            Debug.Log(this.gameObject.name + ": Eat good cake");
 
             //Si esta la textura flaco - cambiar a textura normal
             if(unicornStatusTexture.DimensionComplex == 0)
