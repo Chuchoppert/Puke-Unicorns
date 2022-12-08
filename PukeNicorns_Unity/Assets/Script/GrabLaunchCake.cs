@@ -6,14 +6,14 @@ public class GrabLaunchCake : MonoBehaviour
     [SerializeField] float ForceToLauch = 5;
     public KeyCode GrabAndLaunch_Action;
     public bool havePlayerCake = false;
-
-    [Space, Header("Extra Vars")]
     [SerializeField] GameObject cakeTaked_GO;
-    [SerializeField] GameObject UI_Direction;
-    [SerializeField] Vector3 DirToLaunch;
-    //[SerializeField] float RotationY;
-    private bool ReadyToLaunch = false;
 
+    [Space, Header("Vars for directions")]
+    [SerializeField] Vector3 DirToLaunch;
+    [SerializeField] LineRenderer LineGuia;
+    [SerializeField] float LineExtension = 1;
+
+    private bool ReadyToLaunch = false;
 
 
     private void Update()
@@ -21,6 +21,10 @@ public class GrabLaunchCake : MonoBehaviour
         //Solo si el player tiene un pastel, preparar el lanzamiento y lanzar
         if (havePlayerCake)
         {
+            LineGuia.positionCount = 2;
+            LineGuia.SetPosition(0, new Vector3(0.0f, -1.19f, 0.0f));
+            LineGuia.SetPosition(1, new Vector3(DirToLaunch.x * LineExtension, -1.19f, DirToLaunch.z * LineExtension));
+
             //Una vez que el player tenga el pastel, debera dejar de tocar la tecla para preparar el lanzamiento
             if (Input.GetKeyUp(GrabAndLaunch_Action))
             {
@@ -37,7 +41,7 @@ public class GrabLaunchCake : MonoBehaviour
                 //cakeTaked_GO.GetComponent<CakeObject>().UICanvas_Cake.transform.rotation = Quaternion.Euler(0.0f, RotationY, 0.0f);
 
                 //Ocultar direccion de lanzamiento
-                UI_Direction.SetActive(false);
+                LineGuia.positionCount = 0;
 
                 //Resetear valores para el proximo pastel
                 cakeTaked_GO = null;
@@ -56,6 +60,5 @@ public class GrabLaunchCake : MonoBehaviour
     {
         havePlayerCake = HaveCake;
         cakeTaked_GO = CakeGO;
-        UI_Direction.SetActive(true);
     }
 }
