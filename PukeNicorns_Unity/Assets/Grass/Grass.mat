@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Grass
-  m_Shader: {fileID: 4800000, guid: 8b1eede4907b96340abe6724ca0526db, type: 3}
+  m_Shader: {fileID: 4800000, guid: fa7418db259cb8f41a17ee7dc704326c, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
